@@ -1,6 +1,88 @@
 <h2>Вход</h2>
-<a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Войти через Google</a><br>
-<a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Войти через VK</a><br><br>
+<a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="20" height="20">
+        <span>Войти через Google</span>
+      </a>  
+
+<hr>
+
+<div>
+  <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
+  <script type="text/javascript">
+    if ('VKIDSDK' in window) {
+      const VKID = window.VKIDSDK;
+
+      VKID.Config.init({
+        app: 53582624,
+        redirectUrl: 'https://authmodule-0ei3.onrender.com/auth/login/vk-oauth2/',
+        responseMode: VKID.ConfigResponseMode.Callback,
+        source: VKID.ConfigSource.LOWCODE,
+        scope: '', // Заполните нужными доступами по необходимости
+      });
+
+      const oneTap = new VKID.OneTap();
+
+      oneTap.render({
+        container: document.currentScript.parentElement,
+        showAlternativeLogin: true,
+        styles: {
+          width: 300
+        }
+      })
+      .on(VKID.WidgetEvents.ERROR, vkidOnError)
+      .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, function (payload) {
+        const code = payload.code;
+        const deviceId = payload.device_id;
+
+        VKID.Auth.exchangeCode(code, deviceId)
+          .then(vkidOnSuccess)
+          .catch(vkidOnError);
+      });
+          
+            function vkidOnSuccess(data) {
+                fetch("/auth/vk-onetap-callback/", {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie('csrftoken')
+                },
+                body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                if (result.redirect_url) {
+                window.location.href = result.redirect_url;
+                } else {
+                alert("Ошибка авторизации через VK");
+                }
+                });
+
+            }
+            function vkidOnError(error) {
+                console.error("VKID Error:", error);
+                alert("Ошибка при авторизации через VK. Попробуйте позже.");
+            }
+          }
+
+        function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+        }
+        }
+        }
+        return cookieValue;
+}
+
+        </script>
+      </div>  
+
+      <hr>
 
 <script async src="https://telegram.org/js/telegram-widget.js?7"
         data-telegram-login="CenometrBot"
