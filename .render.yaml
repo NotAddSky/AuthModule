@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: authmodule
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn AuthModule.wsgi
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: AuthModule.settings
+      - key: PYTHON_VERSION
+        value: 3.9
