@@ -17,7 +17,7 @@
         redirectUrl: 'https://authmodule-0ei3.onrender.com/auth/complete/vk-oauth2/',
         responseMode: VKID.ConfigResponseMode.Callback,
         source: VKID.ConfigSource.LOWCODE,
-        scope: '', // Заполните нужными доступами по необходимости
+        scope: '', 
       });
 
       const oneTap = new VKID.OneTap();
@@ -63,26 +63,10 @@
                 alert("Ошибка при авторизации через VK. Попробуйте позже.");
             }
           }
-
-        function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === name + "=") {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-        }
-        }
-        }
-        return cookieValue;
-}
-
         </script>
       </div>  
 
-      <hr>
+<hr>
 
 <script async src="https://telegram.org/js/telegram-widget.js?7"
         data-telegram-login="CenometrBot"
@@ -91,3 +75,12 @@
         data-auth-url="https://authmodule-0ei3.onrender.com/auth/complete/telegram/"
         data-request-access="write">
 </script>
+
+<hr>
+
+{% if user.is_authenticated %}
+  <p>Вы вошли как {{ user.username }}</p>
+  {% for account in user.social_auth.all %}
+    <p>Через: {{ account.provider }}</p>
+  {% endfor %}
+{% endif %}
